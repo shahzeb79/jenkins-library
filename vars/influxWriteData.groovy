@@ -52,7 +52,6 @@ void call(Map parameters = [:]) {
 Artifact version: ${config.artifactVersion}
 Influx server: ${config.influxServer}
 Influx prefix: ${config.influxPrefix}
-InfluxDB data: ${script.commonPipelineEnvironment.getInfluxCustomData()}
 InfluxDB data map: ${script.commonPipelineEnvironment.getInfluxCustomDataMap()}
 [${STEP_NAME}]----------------------------------------------------------"""
 
@@ -76,15 +75,13 @@ private void writeToInflux(config, script){
             $class: 'InfluxDbPublisher',
             selectedTarget: config.influxServer,
             customPrefix: config.influxPrefix,
-            customData: script.commonPipelineEnvironment.getInfluxCustomData(),
             customDataMap: script.commonPipelineEnvironment.getInfluxCustomDataMap()
         ])
     }
 
     //write results into json file for archiving - also benefitial when no InfluxDB is available yet
     def jsonUtils = new JsonUtils()
-    writeFile file: 'jenkins_data.json', text: jsonUtils.getPrettyJsonString(script.commonPipelineEnvironment.getInfluxCustomData())
-    writeFile file: 'pipeline_data.json', text: jsonUtils.getPrettyJsonString(script.commonPipelineEnvironment.getInfluxCustomDataMap())
-    archiveArtifacts artifacts: '*data.json', allowEmptyArchive: true
+    writeFile file: 'influx_data.json', text: jsonUtils.getPrettyJsonString(script.commonPipelineEnvironment.getInfluxCustomDataMap())
+    archiveArtifacts artifacts: 'influx_data.json', allowEmptyArchive: true
 
 }
