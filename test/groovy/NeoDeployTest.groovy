@@ -217,6 +217,48 @@ class NeoDeployTest extends BasePiperTest {
     }
 
     @Test
+    void mergingWithStageConfiguration() {
+        shellRule.setReturnValue(JenkinsShellCallRule.Type.REGEX, '.* status .*', 'Status: STARTED')
+
+        def utils = new Utils() {
+            void pushToSWA(Map parameters, Map config) {}
+        }
+
+        nullScript.commonPipelineEnvironment.configuration = [
+            steps: [
+                neoDeploy: [
+                    neo: [
+                        credentialsId: 'myCredentialsId'
+                    ]
+                ]
+            ],
+            stages: [
+                Deployment: [
+                    neo: [
+                        propertiesFile: propertiesFileName
+                    ]
+                ]
+            ]
+        ]
+
+        stepRule.step.neoDeploy(script: nullScript,
+            source: warArchiveName,
+            deployMode: 'warPropertiesFile',
+            warAction: 'rolling-update',
+            stageName: 'Deployment',
+            utils: utils,
+        )
+
+        Assert.assertThat(shellRule.shell,
+            new CommandLineMatcher().hasProlog("\"/opt/neo/tools/neo.sh\" rolling-update")
+                .hasArgument("config.properties")
+                .hasSingleQuotedOption('user', 'anonymous')
+                .hasSingleQuotedOption('password', '\\*\\*\\*\\*\\*\\*\\*\\*')
+                .hasSingleQuotedOption('source', '.*\\.war'))
+
+    }
+
+    @Test
     void straightForwardTestConfigViaConfigurationAndViaConfigProperties() {
 
         nullScript.commonPipelineEnvironment.setConfigProperty('DEPLOY_HOST', 'configProperties.deploy.host.com')
