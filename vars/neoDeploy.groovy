@@ -1,4 +1,5 @@
 import com.sap.piper.ConfigurationHelper
+import com.sap.piper.DefaultValueCache
 import com.sap.piper.Utils
 import com.sap.piper.tools.ToolDescriptor
 import com.sap.piper.tools.neo.DeployMode
@@ -64,6 +65,9 @@ void call(parameters = [:]) {
             .withMandatoryProperty('source')
             .withPropertyInValues('deployMode', DeployMode.stringValues())
             .use()
+
+        echo "Default value configuration: ${DefaultValueCache.getInstance().getDefaultValues().toString()}"
+        echo "Configuration after merging: ${configuration.toString()}"
 
         utils.pushToSWA([
             step: STEP_NAME,
