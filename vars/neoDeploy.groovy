@@ -66,6 +66,7 @@ void call(parameters = [:]) {
             .withPropertyInValues('deployMode', DeployMode.stringValues())
             .use()
 
+        echo "Stage name: ${parameters.stageName ?: env.STAGE_NAME}"
         echo "Default value configuration: ${DefaultValueCache.getInstance().getDefaultValues().toString()}"
         echo "Configuration after merging: ${configuration.toString()}"
 
