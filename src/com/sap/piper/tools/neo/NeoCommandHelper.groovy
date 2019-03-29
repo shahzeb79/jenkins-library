@@ -42,6 +42,7 @@ class NeoCommandHelper {
     }
 
     String deployCommand() {
+        echo "${mainArgs()}"
         "${prolog()} deploy ${mainArgs()} ${source()} ${additionalArgs()}"
     }
 
